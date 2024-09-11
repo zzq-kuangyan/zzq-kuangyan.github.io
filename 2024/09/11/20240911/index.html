@@ -17,7 +17,7 @@
 
 
 
-<title>1 | ZQ&#39;s blog~</title>
+<title>在使用DATaX时发生的一些问题 | ZQ&#39;s blog~</title>
 
 
 
@@ -194,7 +194,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        1
+        在使用DATaX时发生的一些问题
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -249,12 +249,16 @@
 
 <!-- toc -->
 
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
 <section class="px-6 max-w-prose mx-auto md:px-0">
   <!-- header -->
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        1
+        在使用DATaX时发生的一些问题
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
@@ -270,7 +274,7 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>0 words</span>
+            <span>175 words</span>
           </span>
           
         </section>
@@ -279,7 +283,16 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    
+    <h1 id="很无语"><a href="#很无语" class="headerlink" title="很无语:)"></a>很无语:)</h1><h3 id="1-在第一次安装后测试自检时报错datax-plugin-reader-xxxx-plugin-json-不存在"><a href="#1-在第一次安装后测试自检时报错datax-plugin-reader-xxxx-plugin-json-不存在" class="headerlink" title="1.在第一次安装后测试自检时报错datax&#x2F;plugin&#x2F;reader&#x2F;._xxxx&#x2F;plugin.json]不存在"></a>1.在第一次安装后测试自检时报错datax&#x2F;plugin&#x2F;reader&#x2F;._xxxx&#x2F;plugin.json]不存在</h3><p><strong>自检代码：</strong></p>
+<p><code>python /opt/module/datax/bin/datax.py /opt/module/datax/job/job.json</code></p>
+<p><strong>报错：</strong></p>
+<p> <code>[main] WARN  ConfigParser - 插件[streamreader,streamwriter]加载失败，1s后重试... Exception:Code:[Common-00], Describe:[您提供的配置文件存在错误信息，请检查您的作业配置 .] - 配置信息错误，您提供的配置文件[/home/hadoop/apps/datax/plugin/reader/._drdsreader/plugin.json]不存在. 请检查您的配置文件.</code> </p>
+<p><strong>解决方法：</strong></p>
+<p>删除datax&#x2F;plugin目录下自带的临时文件</p>
+<p><strong>代码如下：</strong></p>
+<p>find .&#x2F;datax&#x2F;plugin&#x2F;* -type f -name “.*er” | [xargs]</p>
+<h3 id="MySQL写数据到HDFS时，执行datax脚本报错"><a href="#MySQL写数据到HDFS时，执行datax脚本报错" class="headerlink" title="MySQL写数据到HDFS时，执行datax脚本报错"></a>MySQL写数据到HDFS时，执行datax脚本报错</h3><p><img src="/./1.png" alt="image-20240911224900371"></p>
+
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
