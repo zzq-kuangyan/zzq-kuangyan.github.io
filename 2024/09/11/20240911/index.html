@@ -274,7 +274,7 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>175 words</span>
+            <span>291 words</span>
           </span>
           
         </section>
@@ -291,7 +291,13 @@
 <p>删除datax&#x2F;plugin目录下自带的临时文件</p>
 <p><strong>代码如下：</strong></p>
 <p>find .&#x2F;datax&#x2F;plugin&#x2F;* -type f -name “.*er” | [xargs]</p>
-<h3 id="MySQL写数据到HDFS时，执行datax脚本报错"><a href="#MySQL写数据到HDFS时，执行datax脚本报错" class="headerlink" title="MySQL写数据到HDFS时，执行datax脚本报错"></a>MySQL写数据到HDFS时，执行datax脚本报错</h3><p><img src="/./1.png" alt="image-20240911224900371"></p>
+<h3 id="MySQL写数据到HDFS时，执行datax脚本报错"><a href="#MySQL写数据到HDFS时，执行datax脚本报错" class="headerlink" title="MySQL写数据到HDFS时，执行datax脚本报错"></a>MySQL写数据到HDFS时，执行datax脚本报错</h3><p><img src="/./img/1.png" alt="error"></p>
+<p>然而在我折腾了一下午jdbc的配置后（在navicat上测试远程连接，idea上用jdbc远程连接成功）发现无事发生，还是同样的报错…..</p>
+<p><img src="/../img/image-20240911233804427.png" alt="navicat"></p>
+<p><img src="/../img/image-20240911234004466.png" alt="idea中JDBC测试"></p>
+<p>🤡</p>
+<p>怀疑虚拟机的JDBC驱动没装，在官网上下好包后在虚拟机装上发现还是同样的报错，最后发现datax的依赖库中jdbc版本太低，导致无法远程连接（官网下载最新的包替换问题解决）…😅</p>
+<p><img src="/../img/image-20240911234722046.png" alt="我请问呢？"></p>
 
   </article>
   <!-- tag -->
