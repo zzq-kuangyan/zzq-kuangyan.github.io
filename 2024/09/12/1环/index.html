@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="ZQ">
+
+
+
+  <meta name="description" content="blog for my own">
+
+
+
+<title>程序 内存 进程 线程 浏览器和JavaScript和事件循环 | ZQ&#39;s blog~</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+
+    $("#toggle-dark").click((event) => {
+      const isAppearanceTransition = document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (!isAppearanceTransition) {
+        toggleDark()
+        return
+      }
+      const x = event.clientX
+      const y = event.clientY
+      const endRadius = Math.hypot(
+        Math.max(x, innerWidth - x),
+        Math.max(y, innerHeight - y),
+      )
+      const transition = document.startViewTransition(async () => {
+        toggleDark()
+      })
+
+      transition.ready
+        .then(() => {
+          const isDark = document.documentElement.classList.contains("dark")
+          const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ]
+          document.documentElement.animate(
+            {
+              clipPath: isDark
+                ? [...clipPath].reverse()
+                : clipPath,
+            },
+            {
+              duration: 400,
+              easing: 'ease-out',
+              pseudoElement: isDark
+                ? '::view-transition-old(root)'
+                : '::view-transition-new(root)',
+            },
+          )
+        })
+    });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="ZQ's blog~" />
+          ZQ&#39;s blog~
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        程序 内存 进程 线程 浏览器和JavaScript和事件循环
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/zzq-kuangyan">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        程序 内存 进程 线程 浏览器和JavaScript和事件循环
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2024-09-12</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>10 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>3k words</span>
+          </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h3 id="进制数小知识点"><a href="#进制数小知识点" class="headerlink" title="进制数小知识点"></a>进制数小知识点</h3><p>二进制 是 通过 10101010组成 </p>
+<p>八进制 通过 0 - 7 组成</p>
+<p>十进制 通过  0 - 9 组成 </p>
+<p>十六进制通过 0 - 9 a- f 组成</p>
+<h3 id="什么是程序"><a href="#什么是程序" class="headerlink" title="什么是程序"></a>什么是程序</h3><p>就是 app 和 电脑桌面上的 一些应用</p>
+<h3 id="什么是内存"><a href="#什么是内存" class="headerlink" title="什么是内存"></a>什么是内存</h3><p>这里的内存指的是 运行内存  不是 存储内存 cpu 会直接 读取 运行内存;</p>
+<p>为什么要有 运行内存 cpu 直接在 存储内存 上读写 不更好吗 而且 内存空间大?</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果cpu  直接读取 存储内存 非常慢 而且 存储内存的空间非常大</span><br></pre></td></tr></table></figure>
+
+<h3 id="什么是进程"><a href="#什么是进程" class="headerlink" title="什么是进程"></a>什么是进程</h3><p>什么是进程？；</p>
+<p>进程就是 我们 打开一个程序 内存空间 会给这个程序分配一个空间 运行进程</p>
+<h3 id="什么是线程"><a href="#什么是线程" class="headerlink" title="什么是线程"></a>什么是线程</h3><p>线程就是 在分配好的进程空间里面 由线程来运行这些 一个 程序 进程最少有一个线程(叫做主线程)<br>（而浏览器是非常复杂的 浏览器 有多个进程） 浏览器最主要的三个进程 浏览器进程 网络进程 和 渲染进程</p>
+<h3 id="程序-内存-进程-程序-线程-介绍"><a href="#程序-内存-进程-程序-线程-介绍" class="headerlink" title="程序 内存 进程 程序 线程  介绍"></a>程序 内存 进程 程序 线程  介绍</h3><p> 电脑桌面上对应的程序 当我们打开 程序的时候运行内存 会给 程序分配一片空间 叫 进程 每个 程序的进程空间 都是相互独立的 每个进程都最少有 一个 线程叫做主线程 来 运行这些代码</p>
+<h3 id="浏览器进程"><a href="#浏览器进程" class="headerlink" title="浏览器进程"></a>浏览器进程</h3><p> 浏览器 有三个 主要的进程 浏览器进程 渲染进程 和 网络进程</p>
+<p> 而渲染主线程(渲染进程) 他 要 执行 css  html  js  所有的页面渲染</p>
+<h3 id="渲染进程"><a href="#渲染进程" class="headerlink" title="渲染进程"></a>渲染进程</h3><p> 渲染进程下面的 线程 有 GUI渲染线程 定时线程（定时器触发线程、）  和 交互线程（事件触发线程）</p>
+<h3 id="如何理解js异步（面试题）"><a href="#如何理解js异步（面试题）" class="headerlink" title="如何理解js异步（面试题）"></a>如何理解js异步（面试题）</h3><p>（注意）不是浏览器线程  浏览器是 多线程的  但是 JavaScript（js） 是单线程语言</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">JS是一门单线程的语言，这是因为它运行在浏览器的渲染主线程中，而渲染主线程只有一个。果而渲染主线程承担着诸多的工作，渲染页面、执行 JS 都在其中运行。如果使用同步的方式，就极有可能导致主线程产生阻塞，从而导致消息队列中的很多其他任务无法得到执行这样一来，一方面会导致繁忙的主线程白白的消耗时间，另一方面导致页面无法及时更新，给用户造成卡死现象。</span><br><span class="line">所以浏览器采用异步的方式来避免。具体做法是当某些任务发生时，比如计时器、网络、事件监听，主线程将任务交给其他线程去处理，自身立即结束任务的执行，转而执行后续代码。当其他线程完成时，将事先传递的回调函数包装成任务，加入到消息队列的末尾排队，等待主线程调度执行。在这种异步模式下，浏览器永不阻塞，从而最大限度的保证了单线程的流畅运行。</span><br></pre></td></tr></table></figure>
+
+<h3 id="任务有优先级吗"><a href="#任务有优先级吗" class="headerlink" title="任务有优先级吗"></a>任务有优先级吗</h3><p>任务没有优先级 在信息队列中先进先出<br>在信息队列中 有优先级的</p>
+<p>根据W3C的最新解释</p>
+<ol>
+<li>每个任务都有一个任务类型 比如 微任务 定时任务 和 交互任务， 同一个类型的任务必须在同一个队列里面，不同的任务可以分属于不同的任务队列 在一次事件循环中，浏览器可以根据实际情况从不同的队列中取出执行</li>
+<li>浏览器必须准备一个 微任务队列，微任务队列中的任务优先其他任务执行</li>
+</ol>
+<p> 在目前 chrome 中 至少包含以下队列</p>
+<ol>
+<li>微任务队列（优先级最高）</li>
+<li>交互任务队列（优先级高）</li>
+<li>延时任务队列（优先级中）</li>
+</ol>
+<h3 id="模型模拟（模拟）"><a href="#模型模拟（模拟）" class="headerlink" title="模型模拟（模拟）"></a>模型模拟（模拟）</h3><p>渲染主线程 [任务1, 任务2, 任务3]</p>
+<p>微任务队列 [排队1，排队2，]（优先级最高）</p>
+<p>延时任务队列 [排队1，排队2] (优先级中)</p>
+<p>交互任务 [排队1，排队2] (优先级高)</p>
+<h3 id="阐述一下-JavaScript-的事件循环（面试题）"><a href="#阐述一下-JavaScript-的事件循环（面试题）" class="headerlink" title="阐述一下 JavaScript 的事件循环（面试题）"></a>阐述一下 JavaScript 的事件循环（面试题）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">事件循环 又叫做消息循环 是浏览器主线程的工作方式 在Chrome的源码中 开启一个 不会结束的<span class="keyword">for</span>循环，每次循环从信息队列中取出第一个任务执行 而其他线程只需要在合适的时候加入队列末尾即可</span><br><span class="line"></span><br><span class="line">根据 w3c官方解释：</span><br><span class="line"> 每个任务都有一个任务类型 比如 微任务 定时任务 和 交互任务， 同一个类型的任务必须在同一个队列里面，不同的任务可以分属于不同的任务队列 在一次事件循环中，浏览器可以根据实际情况从不同的队列中取出执行</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="js中的计时器中-能做到精确计时吗-为什么"><a href="#js中的计时器中-能做到精确计时吗-为什么" class="headerlink" title="js中的计时器中 能做到精确计时吗 为什么"></a>js中的计时器中 能做到精确计时吗 为什么</h3><p>不能 因为:</p>
+<ol>
+<li>在受 事件循环的影响，计时的回调函数 只能在主线程空闲时间运行，因此带来偏差</li>
+<li>在w3c标准中，计时器 超过 五层 就会出现 4毫秒的最少时间，（简单解释）<br>完整解释：按照W3C标准，浏览器计时时，如果嵌套层级超过五层，则会带来4毫秒的最少时间，这样在计时时间少于4毫秒时又带来偏差</li>
+</ol>
+<h1 id="重新整理-浏览器进程和线程"><a href="#重新整理-浏览器进程和线程" class="headerlink" title="重新整理 浏览器进程和线程"></a>重新整理 浏览器进程和线程</h1><p>浏览器进程：浏览器有六个进程分别</p>
+<table>
+<thead>
+<tr>
+<th>进程名称</th>
+<th>数量</th>
+<th>进程介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>浏览器主进程(Browser)</td>
+<td>1</td>
+<td>主要负责进程管理，操作界面显示，用户的交互</td>
+</tr>
+<tr>
+<td>网络进程</td>
+<td>1</td>
+<td>负责网络资源加载</td>
+</tr>
+<tr>
+<td>渲染进程（浏览器内核Renderer进程内部是多线程）</td>
+<td>N</td>
+<td>负责将 HTML、CSS 和 JavaScript 转换成用户可以交互的操作界面。默认情况下，每个Tab都会被创建一个渲染进程。且渲染进程运行在沙箱模式下。</td>
+</tr>
+<tr>
+<td>GPU进程</td>
+<td>1</td>
+<td>负责3D效果、动画、图片等渲染。</td>
+</tr>
+<tr>
+<td>插件进程</td>
+<td>N</td>
+<td>负责插件的运行和隔离。隔离插件主要是防止出现单个插件崩溃导致页面或者浏览器崩溃的情况。</td>
+</tr>
+<tr>
+<td>缓存进程(Storage Service)</td>
+<td>1</td>
+<td>负责提供浏览器存储的功能。他是从主进程中分离出来的服务</td>
+</tr>
+<tr>
+<td>音频进程(Audio Service)</td>
+<td>1</td>
+<td>主要处理 音频和视频</td>
+</tr>
+<tr>
+<td>数字解码进程(Data Decoder Service)</td>
+<td>N</td>
+<td>执行image，zip等文件的解码</td>
+</tr>
+</tbody></table>
+<p>重点是浏览器内核（渲染进程）</p>
+<ol>
+<li><p><code>GUI进程</code><br> 负责渲染浏览器界面，解析HTML，CSS，构建DOM树和RenderObject树，布局和绘制等。<br> 当界面需要重绘（Repaint）或由于某种操作引发回流(reflow)时，该线程就会执行<br> 注意，GUI渲染线程与JS引擎线程是互斥的，当JS引擎执行时GUI线程会被挂起（相当于被冻结了），GUI更新会被保存在一个队列中等到JS引擎空闲时立即被执行。</p>
+</li>
+<li><p><code>JS引擎线程</code><br>也称为JS内核，负责处理Javascript脚本程序。（例如V8引擎）<br>JS引擎线程负责解析Javascript脚本，运行代码。<br>JS引擎一直等待着任务队列中任务的到来，然后加以处理，一个Tab页（renderer进程）中无论什么时候都只有一个JS线程在运行JS程序<br>同样注意，GUI渲染线程与JS引擎线程是互斥的，所以如果JS执行的时间过长，这样就会造成页面的渲染不连贯，导致页面渲染加载阻塞。</p>
+</li>
+<li><p><code>事件触发线程</code><br>归属于浏览器而不是JS引擎，用来控制事件循环（可以理解，JS引擎自己都忙不过来，需要浏览器另开线程协助）<br>当JS引擎执行代码块如setTimeOut时（也可来自浏览器内核的其他线程,如鼠标点击、AJAX异步请求等），会将对应任务添加到事件线程中<br>当对应的事件符合触发条件被触发时，该线程会把事件添加到待处理队列的队尾，等待JS引擎的处理<br>注意，由于JS的单线程关系，所以这些待处理队列中的事件都得排队等待JS引擎处理（当JS引擎空闲时才会去执行）</p>
+</li>
+<li><p><code>定时器线程</code><br> 传说中的setInterval与setTimeout所在线程<br> 浏览器定时计数器并不是由JavaScript引擎计数的,（因为JavaScript引擎是单线程的, 如果处于阻塞线程状态就会影响记计时的准确）<br> 因此通过单独线程来计时并触发定时（计时完毕后，添加到事件队列中，等待JS引擎空闲后执行）<br> 注意，W3C在HTML标准中规定，规定要求setTimeout中低于4ms的时间间隔算为4ms。</p>
+</li>
+<li><p><code>异步http请求线程</code><br>在XMLHttpRequest在连接后是通过浏览器新开一个线程请求<br>将检测到状态变更时，如果设置有回调函数，异步线程就产生状态变更事件，将这个回调再放入事件队列中。再由JavaScript引擎执行。</p>
+</li>
+</ol>
+<p>WebWorker，JS的多线程？</p>
+<ol>
+<li>创建Worker时，JS引擎向浏览器申请开一个子线程（子线程是浏览器开的，完全受主线程控制，而且不能操作DOM）</li>
+<li>S引擎线程与worker线程间通过特定的方式通信（postMessage API，需要通过序列化对象来与线程交互特定的数据）</li>
+</ol>
+<p>所以，如果有非常耗时的工作，请单独开一个Worker线程，这样里面不管如何翻天覆地都不会影响JS引擎主线程，<br>只待计算出结果后，将结果通信给主线程即可，perfect!</p>
+<p>而且注意下，JS引擎是单线程的，这一点的本质仍然未改变，Worker可以理解是浏览器给JS引擎开的外挂，专门用来解决那些大量计算问题。</p>
+<p>更多详细[<a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000012925872#item-4-2]">https://segmentfault.com/a/1190000012925872#item-4-2]</a></p>
+<p>关于defer和async</p>
+<p>正常引入JavaScrip JS引擎线程执行的时，GUI线程会被挂起，所以像下图展示效果先html 解析 遇到script 下载对应的资源下载后解析资源，再重新执行渲染HTML</p>
+<p><img src="https://img.kancloud.cn/81/3e/813eafdcbccd1942f5be0380b56d35b2_716x184.png"></p>
+<p>Async – 异步</p>
+<p>async 运行在浏览器执行其他操作时并行去下载指定js文件一旦文件的下载完成，浏览器将立即开始执行它。因此只要文件下载完 JS 文件的执行将阻止网页&#x2F;HTML 文件的当前渲染。’简单’的说解决下载，让下载和其他操作可以同步，但当下载完成后的立即执行效果依旧会阻止’html’ 渲染</p>
+<p>async不会能保证在DOMContentLoaded之前或者之后执行</p>
+<p><img src="https://img.kancloud.cn/79/91/799186d005394b15600cb7e97fed8562_599x168.png"></p>
+<p>Async 只是会同步去下载js文件 还是 会执行 javascript 组织 html渲染</p>
+<p>defer– 延迟（常用重要）</p>
+<p>1.defer 属性的 JS 文件将与其他文件同时下载，仅在 HTML 文件呈现完成后才开始执行下载的资<br>源，而不是像 async 在资源下载完成后立即执行。 因此，延迟文件的下载和执行都不会阻塞渲<br>染。<br>2.defer 加载顺序将始终按照指定<br>3. 它会等待DOM Tree构建完成，在DOMContentLoaded事件之前先执行defer中的代码<br>4. 并不会产生所谓的获取不到dom到情况</p>
+<p>注释：DOMContentLoaded是html页面生命周期 会在DOM树执行完毕就执行, onload 在 dom构建完成 并且完成了所有的图片 样式表 脚本等资源加载完成后触发</p>
+<p><img src="https://img.kancloud.cn/cf/03/cf03cd6f810ad0ec78e7d83d5279c7a3_644x204.png"></p>
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+    </div>
+    <div>
+      
+        <a href="/2024/09/11/20240911/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          在使用DATaX时发生的一些问题
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "default",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>
