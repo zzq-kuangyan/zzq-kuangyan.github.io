@@ -1,0 +1,58 @@
+# Header
+nav:
+  Posts: /archives
+  Categories: /category
+  Tags: /tag
+
+# favicon
+favicon: /favicon.png
+
+# logo
+logo: /images/logo.svg
+
+# links
+links:
+  Github: https://github.com/zzq-kuangyan
+  # ZhiHu:
+  # Twitter:
+  # Weibo:
+
+# analytics
+google_analytics:
+baidu_analytics:
+
+# mathjax
+fancybox: true
+
+# mathjax
+mathjax: true
+
+# echarts
+echarts: true
+
+# busuanzi
+busuanzi: true
+
+# mermaid
+mermaid:
+  enable: true
+  # Available themes: default | dark | forest | neutral
+  theme: dark
+
+# giscus
+giscus:
+  enable: true
+  repo: zzq-kuangyan/zzq-kuangyan.github.io
+  repo_id: R_kgDOMwKw1Q
+  category: Announcements
+  category_id: DIC_kwDOMwKw1c4CiaEV
+  mapping: pathname
+
+# maple
+maple:
+  enable: true
+  # fall leaf count
+  count: 10
+  # 0-1
+  speed: 0.5
+
