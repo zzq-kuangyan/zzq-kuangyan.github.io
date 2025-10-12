@@ -254,206 +254,318 @@
 </div>
 
   <main class="pt-14">
-    <section class="px-6 max-w-prose mx-auto gap-12 grid grid-cols-1">
-  <div class="flex flex-col h-48 items-center justify-center">
-    <h1 class="site-title text-4xl leading-relaxed">
-      ZQ&#39;s blog
-    </h1>
-    <p class="text-gray-500 mt-2">
-      Talk is cheap.
-    </p>
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2025-10-12</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>2 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>586 words</span>
+          </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/DeepLearning/">DeepLearning</a>
+            </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h3 id="深度学习-pytorch"><a href="#深度学习-pytorch" class="headerlink" title="深度学习 &amp; pytorch"></a>深度学习 &amp; pytorch</h3><p>人工神经网络：</p>
+<p>* </p>
+<p>深度学习-多层感知：</p>
+<p>输入层 –&gt;  隐藏层 –&gt;  输出层</p>
+<p>机器学习和深度学习最大区别：</p>
+<ul>
+<li><p>机器学习：人工提取特征</p>
+</li>
+<li><p>深度学习：机器提取</p>
+<p><img src="/../AppData/Roaming/npm/node_modules/zzq-kuangyan.github.io-master/blog/source/img/image-20251012202236295.png" alt="image-20251012202236295"></p>
+</li>
+</ul>
+<h4 id="机器学习历史："><a href="#机器学习历史：" class="headerlink" title="机器学习历史："></a>机器学习历史：</h4><ul>
+<li>计算机科学之父 ：图灵</li>
+<li>信息论之父： 克劳德·香农</li>
+<li>人工智能之父： 约翰·麦卡锡</li>
+<li>人工智能元年： 1956年</li>
+</ul>
+<h4 id="环境配置小贴士"><a href="#环境配置小贴士" class="headerlink" title="环境配置小贴士"></a>环境配置小贴士</h4><ul>
+<li>建议使用 conda powershell prompt , 图形化界面容易卡顿</li>
+<li><ol>
+<li>conda create -n 环境名 python&#x3D;版本号    – 创建虚拟环境</li>
+<li>conda activate 环境名    –切换环境</li>
+<li>conda deactivate 环境名     –切回base环境</li>
+</ol>
+</li>
+</ul>
+<h4 id="Pytorch"><a href="#Pytorch" class="headerlink" title="Pytorch"></a>Pytorch</h4><ul>
+<li><p>概念：</p>
+<p>数据以张量类型存储</p>
+<table>
+<thead>
+<tr>
+<th>0维</th>
+<th>1维</th>
+<th>2维</th>
+<th>3维</th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标量</td>
+<td>矢量</td>
+<td>矩阵</td>
+<td>矩阵数组</td>
+<td></td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h5 id="创建张量："><a href="#创建张量：" class="headerlink" title="创建张量："></a>创建张量：</h5><ul>
+<li>torch.tensor()    –指定数据和类型</li>
+<li>torch.Tensor()   –指定数据大小[行，列]和内容</li>
+<li>torch.IntTensor()   –指定类型直接创建</li>
+</ul>
+<h5 id="线性和随机张量"><a href="#线性和随机张量" class="headerlink" title="线性和随机张量"></a>线性和随机张量</h5><ul>
+<li>torch.linspace()   – 根据步长大小生成步长个值的指定范围张量</li>
+<li>torch.arrange()   –根据步长跳指定大小的值生成指定范围的张量</li>
+<li>torch.rand()        –生成指定大小的随机张量</li>
+<li>torch.randn()      – 生成指定大小的正太分布张量</li>
+<li>torch.Tensor()      –生成指定大小的随机张量</li>
+</ul>
+<h5 id="随机种子查询和设置"><a href="#随机种子查询和设置" class="headerlink" title="随机种子查询和设置"></a>随机种子查询和设置</h5><ul>
+<li>torch.initial_seed()     –查询当前随机种子的值</li>
+<li>torch.manual_seed()     – 设置随机种子的值</li>
+</ul>
+<h5 id="0-1-指定值张量"><a href="#0-1-指定值张量" class="headerlink" title="0&#x2F;1&#x2F;指定值张量"></a>0&#x2F;1&#x2F;指定值张量</h5><ul>
+<li>torch.ones()       – 创建指定形状的值为1张量</li>
+<li>torch.zeros()      – 创建指定形状的值为0张量</li>
+<li>torch.full()          – 创建指定形状的值为指定值的张量</li>
+<li>torch.ones_like()     – 创建张量变量形状的值为1张量</li>
+<li>torch.zeros_like()     –创建张量变量形状的值为0张量</li>
+<li>torch.full_like()       –创建张量变量形状的指定值的张量</li>
+</ul>
+<h5 id="张量中元素类型以及转换操作"><a href="#张量中元素类型以及转换操作" class="headerlink" title="张量中元素类型以及转换操作"></a>张量中元素类型以及转换操作</h5><ul>
+<li><p>张量.float()</p>
+</li>
+<li><p>张量.int()</p>
+</li>
+<li><p>张量.long()</p>
+</li>
+<li><p>张量.short()</p>
+</li>
+<li><p>张量.half()</p>
+</li>
+<li><p>张量.double()</p>
+</li>
+<li><p>True&#x2F;False 1&#x2F;0</p>
+</li>
+<li><p>张量.type(dtype&#x3D;torch.小写类型名)</p>
+</li>
+<li><p>张量.type(dtype&#x3D;torch.int16&#x2F;32&#x2F;64&#x2F;float16&#x2F;32&#x2F;64)</p>
+</li>
+<li><p>张量.type(dtype&#x3D;torch.大写类型Tensor)</p>
+</li>
+</ul>
+<h5 id="tensor和numpy互转"><a href="#tensor和numpy互转" class="headerlink" title="tensor和numpy互转"></a>tensor和numpy互转</h5><ul>
+<li><p>张量转换为numpy   </p>
+<p>张量.numpy()        –共享内存</p>
+<p>张量.numpy().copy()    –不共享 </p>
+<p>numpy转换为张量</p>
+<p>torch.from_numpy(ndarray)     –共享</p>
+<p>torch.tensor(ndarray)          –不共享</p>
+<p>torch.tensor(标量)  –单个标量转张量</p>
+<p>tensor.item()</p>
+</li>
+</ul>
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
   </div>
-  
-  
-    
-    
-      <div class="relative pointer-events-none">
-        <span class="text-9xl opacity-10 absolute -left-11 -top-6 font-bold">2025</span>
-      </div>
-    
-    <a style="--stagger:0" href="/2025/10/12/DeepLearning/DeepLearningDay1/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          10月 12
-          ·
-          2 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-      <div class="relative pointer-events-none">
-        <span class="text-9xl opacity-10 absolute -left-11 -top-6 font-bold">2024</span>
-      </div>
-    
-    <a style="--stagger:1" href="/2024/11/11/BigData/%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+    </div>
+    <div>
+      
+        <a href="/2024/11/11/BigData/%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           关系型数据库设计规范
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          11月 11
-          ·
-          2 min
-        </p>
-      </section>
-    </a>
-  
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
     
-    
-    <a style="--stagger:2" href="/2024/11/01/BigData/%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B9%8BHDFS/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          HDFS高可用之HA架构
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          11月 01
-          ·
-          1 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-    <a style="--stagger:3" href="/2024/10/14/%E7%94%B5%E5%95%86%E6%95%B0%E4%BB%936.0/%E4%BC%98%E6%83%A0%E5%88%B8%E7%BB%B4%E5%BA%A6%E8%A1%A8/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          电商数仓-优惠券维度表
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          10月 14
-          ·
-          2 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-    <a style="--stagger:4" href="/2024/10/06/hack/%E6%96%B0%E5%BB%BA%20%E6%96%87%E6%9C%AC/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          下载Apple Music歌曲|解密ALAC
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          10月 06
-          ·
-          1 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-    <a style="--stagger:5" href="/2024/10/02/BigData/Hive%20on%20Spark/%E6%96%B0%E5%BB%BA%20%E6%96%87%E6%9C%AC%E6%96%87%E6%A1%A3/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          Hive on Spark 使用insert时报错Failed to create Spark client for Spark session XXX  return code  30041
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          10月 02
-          ·
-          1 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-    <a style="--stagger:6" href="/2024/09/16/BigData/%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93-%E5%88%86%E5%B1%82%E7%BB%93%E6%9E%84/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          数据仓库-分层结构
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          9月 16
-          ·
-          1 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-    <a style="--stagger:7" href="/2024/09/12/1%E7%8E%AF/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          程序 内存 进程 线程 浏览器和JavaScript和事件循环
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          9月 12
-          ·
-          10 min
-        </p>
-      </section>
-    </a>
-  
-    
-    
-    <a style="--stagger:8" href="/2024/09/11/BigData/DataX/20240911/" data-animate>
-      <header>
-        <h2 class="font-bold text-xl">
-          在使用DataX时发生的一些问题
-        </h2>
-      </header>
-      <section class="text-gray-400 my-2 text-sm time">
-        <p class="line-clamp-4">
-          
-        </p>
-        <p class="line-clamp-4">
-          9月 11
-          ·
-          1 min
-        </p>
-      </section>
-    </a>
-  
+<script
+  src="https://giscus.app/client.js"
+  data-repo="zzq-kuangyan/zzq-kuangyan.github.io"
+  data-repo-id="R_kgDOMwKw1Q"
+  data-category="Announcements"
+  data-category-id="DIC_kwDOMwKw1c4CiaEV"
+  data-mapping="pathname"
+  data-strict="0"
+  data-reactions-enabled="1"
+  data-emit-metadata="0"
+  data-input-position="bottom"
+  data-theme="preferred_color_scheme"
+  data-lang="zh-CN"
+  crossorigin="anonymous"
+  async
+></script>
+<script>
+  window.onload = function () {
+    console.log("giscus loaded");
+    const isDark = document.documentElement.classList.contains("dark");
+    const giscusFrame = document.querySelector("iframe.giscus-frame");
+    giscusFrame.contentWindow.postMessage(
+      {
+        giscus: {
+          setConfig: {
+            theme: isDark ? "dark" : "light",
+          },
+        },
+      },
+      "https://giscus.app"
+    );
+  };
+</script>
+
+
+  </div>
 </section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "dark",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
 
 
   </main>
