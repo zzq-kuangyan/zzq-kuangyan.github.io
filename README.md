@@ -1,0 +1,3 @@
+## Welcome to my blog!
+I will keep updating information about bigdata, AI, hackintosh, or something interesting... 
+very welcome to subscribe and communicate ,share your comment:） 
