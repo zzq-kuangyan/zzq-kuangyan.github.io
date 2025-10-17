@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="ZQ">
+
+
+  <meta name="subtitle" content="Talk is cheap.">
+
+
+  <meta name="description" content="blog for my own">
+
+
+
+<title>pytorch 02 | ZQ&#39;s blog</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+
+    $("#toggle-dark").click((event) => {
+      const isAppearanceTransition = document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (!isAppearanceTransition) {
+        toggleDark()
+        return
+      }
+      const x = event.clientX
+      const y = event.clientY
+      const endRadius = Math.hypot(
+        Math.max(x, innerWidth - x),
+        Math.max(y, innerHeight - y),
+      )
+      const transition = document.startViewTransition(async () => {
+        toggleDark()
+      })
+
+      transition.ready
+        .then(() => {
+          const isDark = document.documentElement.classList.contains("dark")
+          const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ]
+          document.documentElement.animate(
+            {
+              clipPath: isDark
+                ? [...clipPath].reverse()
+                : clipPath,
+            },
+            {
+              duration: 400,
+              easing: 'ease-out',
+              pseudoElement: isDark
+                ? '::view-transition-old(root)'
+                : '::view-transition-new(root)',
+            },
+          )
+        })
+    });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="ZQ's blog" />
+          ZQ&#39;s blog
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        pytorch 02
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+          <a class="hidden sm:flex" href="/category">Categories</a>
+        
+          <a class="hidden sm:flex" href="/tag">Tags</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/zzq-kuangyan">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/category" class="flex h-12 sm:h-auto items-center">Categories</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/tag" class="flex h-12 sm:h-auto items-center">Tags</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        pytorch 02
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2025-10-15</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>4 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>1.1k words</span>
+          </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/DeepLearning/">DeepLearning</a>
+            </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h3 id="Pytorch"><a href="#Pytorch" class="headerlink" title="Pytorch"></a>Pytorch</h3><h4 id="张量的运算"><a href="#张量的运算" class="headerlink" title="张量的运算"></a>张量的运算</h4><p>add , sub, mul, div ,neg  – 加减乘除</p>
+<p>add_ , sub__, mul_, div_ ,neg_     – 带下划线赋值生效</p>
+<p>或直接用符号(+ - * &#x2F; )</p>
+<p>向量之间相乘条件: shape: [n,m]  * shape: [m, p]  &#x3D; shape:[n,p]</p>
+<p><code>向量1 @ 向量2</code>     – 形状必须一致且符合相乘的条件元素之间才能相乘</p>
+<p><code>torch.matmul(向量1，向量2) </code>   – 形状可以不一致，但是必须符合相乘的条件</p>
+<h4 id="计算函数"><a href="#计算函数" class="headerlink" title="计算函数"></a>计算函数</h4><p><code>torch.mean()</code></p>
+<p><code>torch.sqrt()</code>    – 平方根</p>
+<p><code>torch.sum()</code></p>
+<p><code>torch.exp() </code>    – 指数函数</p>
+<p><code>torch.log()</code></p>
+<p><code>torch.log2()</code></p>
+<p><code>torch.log10()</code></p>
+<p><code>torch.pow()  </code>   –幂</p>
+<h4 id="张量的索引"><a href="#张量的索引" class="headerlink" title="张量的索引"></a>张量的索引</h4><ul>
+<li>张量.[行，列]</li>
+<li>张量.[[行],[列]]       – 坐标轴：返回一个具体张量元素</li>
+<li>张量.[[行1，行2],[列1，列2]]     – 返回两个值，坐标轴为：【行1，列1】【行2，列2】 </li>
+<li>张量.[行x，张量[行y] &lt; z]         –布尔索引  y行返回小于z的 x行元素</li>
+<li>张量[1，1，1，2，3]     – 多维索引    返回多维里2行3列的张量元素</li>
+</ul>
+<h4 id="张量形状操作"><a href="#张量形状操作" class="headerlink" title="张量形状操作"></a>张量形状操作</h4><h5 id="reshape"><a href="#reshape" class="headerlink" title="reshape()"></a><code>reshape()</code></h5><p>最常用的改变形状函数</p>
+<p><code>张量.reshape() </code>       –改变形状 ，保证数据不会损失</p>
+<p><img src="/../../img/image-20251014212502665.png" alt="image-20251014212502665"></p>
+<h5 id="squeeze-unsqueeze"><a href="#squeeze-unsqueeze" class="headerlink" title="squeeze()  &amp;  unsqueeze()"></a><code>squeeze() </code> &amp;  <code>unsqueeze()</code></h5><p>降维函数 &amp; 升维函数</p>
+<p><img src="/../../img/image-20251014212255259.png" alt="image-20251014212255259"></p>
+<h5 id="transpose-permute"><a href="#transpose-permute" class="headerlink" title="transpose() &amp; permute()"></a><code>transpose() </code>&amp; <code>permute()</code></h5><p>transpose:  交换张量形状&#x2F;转置，将二行三列转为三行二列，一行四列转为四行一列等等…</p>
+<p>permute:  转置，一次可以转多个维度</p>
+<p><img src="/../../img/image-20251014213043601.png" alt="image-20251014213043601"></p>
+<h5 id="view-contiguous"><a href="#view-contiguous" class="headerlink" title="view() &amp; contiguous()"></a><code>view()</code> &amp; <code>contiguous()</code></h5><p>view也是修改形状，只能修改连续的张量（内存地址中的连续）。</p>
+<p><strong>内存连续 (Contiguous)：</strong> </p>
+<p>张量中<strong>逻辑上相邻</strong>的元素（通常按照行主序，即 C&#x2F;Python&#x2F;PyTorch 的默认存储方式），在内存地址上也是<strong>紧密相邻</strong>的。如果从内存起点依次读取，就能完整且按序地读出整个张量。</p>
+<p><img src="/../../img/image-20251014213546574.png" alt="image-20251014213546574"></p>
+<p><strong>转置示例：</strong></p>
+<p>如果将 T 转置为 T′，逻辑上 T′ 的元素顺序是 **[1,4,2,5,3,6]<strong>。但是，在内存中，它仍然是 T 的原始存储：</strong>[1,2,3,4,5,6]**。</p>
+<p>此时，要读取 T′ 逻辑上的第二个元素（4），程序需要跳过（或“跨步”）内存地址，因此 T′ 是<strong>不连续的</strong>。</p>
+<p><strong>如何破坏连续性？</strong></p>
+<p>一些张量操作会改变元素的<strong>逻辑顺序</strong>（新的形状&#x2F;维度顺序），但<strong>不会</strong>改变底层数据在内存中的<strong>物理排列</strong>。这些操作会创建<strong>不连续的张量视图</strong>：</p>
+<ul>
+<li><strong><code>transpose()</code> (转置)</strong></li>
+<li><strong><code>permute()</code> (维度重排)</strong></li>
+<li><strong>非连续切片</strong> (例如，<code>tensor[:, ::2]</code>)</li>
+</ul>
+<p><strong>恢复连续性</strong></p>
+<ul>
+<li>使用 <code>tensor.contiguous()</code> 函数。</li>
+<li>该函数会检查张量是否连续。如果不连续，它会<strong>创建一个新的张量</strong>，并将原始数据按逻辑顺序<strong>复制</strong>到新张量的连续内存块中，从而恢复连续性。这个操作会消耗时间和内存。</li>
+</ul>
+<p><strong>为什么连续性很重要？</strong></p>
+<p>内存连续性是高性能计算的关键：</p>
+<ul>
+<li><strong>利用缓存优势：</strong> 当 CPU 或 GPU 访问一个连续张量的第一个元素时，由于局部性原理，系统会预先将后续相邻的元素加载到高速缓存中。这使得后续的数据访问速度大大提高。</li>
+<li><strong>底层优化：</strong> 许多高性能库（如 BLAS、cuDNN）和 PyTorch 的高效操作（如 <code>view()</code>）都要求输入张量是连续的，因为这样可以避免复杂的索引计算，直接通过内存指针操作数据。</li>
+</ul>
+<h4 id="张量拼接操作"><a href="#张量拼接操作" class="headerlink" title="张量拼接操作"></a>张量拼接操作</h4><h5 id="cat-stack"><a href="#cat-stack" class="headerlink" title="cat() &amp;  stack()"></a><code>cat()</code> &amp;  <code>stack()</code></h5><p><code>torch.cat(data1,data2)</code>      – 拼接两个张量数据， 不改变维数</p>
+<p><code>torch.stack(data1,data2)</code>     – 增加一个新维度，在内连接一列张量，输入的张量形状必须完全一致</p>
+<p><img src="/../../img/image-20251014214735283.png" alt="image-20251014214735283"></p>
+<p><img src="/../../img/image-20251014214810748.png" alt="image-20251014214810748"></p>
+<h4 id="自动微分模块"><a href="#自动微分模块" class="headerlink" title="自动微分模块"></a>自动微分模块</h4><p><strong>训练神经网络</strong>时，最常用的算法就是<strong>反向传播</strong>。在该算法中，参数(模型权重)会根据损失函数关于对应参数的梯度进行调整。为了计算这些梯度，PyTorch内置了名为 <code>torch.autograd</code> 的微分模块。它支持任意计算图的自动梯度计算:</p>
+<p><img src="/../../img/image-20251014215132441.png" alt="image-20251014215132441"></p>
+<p>使用<code>torch.tensor(data,requires_grad=True)</code>创建张量时将require_grad设为True即可</p>
+<ul>
+<li>Pytorch 不支持向量张量对向量张量的求导，只支持标量张量对向量张量的求导<ul>
+<li>x如果是张量，y必须是标量（1个值）才能进行求导</li>
+</ul>
+</li>
+<li>计算梯度:<ul>
+<li><code>y.backward()</code>    <strong>–y是一个标量</strong></li>
+</ul>
+</li>
+<li>获取x点的梯度值：<ul>
+<li><code>x.grad</code>    <strong>–会累加上一次的梯度值</strong></li>
+</ul>
+</li>
+</ul>
+<h5 id="梯度下降法最优解"><a href="#梯度下降法最优解" class="headerlink" title="梯度下降法最优解"></a>梯度下降法最优解</h5><p><strong>梯度下降公式：</strong>  w &#x3D; w - r * grad      (r&#x3D;学习率 ， grad&#x3D;梯度值)</p>
+<p>清空上次的梯度值：  <code>x.grad.zero_()</code></p>
+<p><img src="/../../img/image-20251014215956562.png" alt="image-20251014215956562"></p>
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+        <a href="/2025/10/15/DeepLearning/DeepLearningDay3_2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          人工神经网络-sigmoid函数
+        </a>
+      
+    </div>
+    <div>
+      
+        <a href="/2025/10/12/DeepLearning/DeepLearningDay1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          深度学习 & pytorch
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+<script
+  src="https://giscus.app/client.js"
+  data-repo="zzq-kuangyan/zzq-kuangyan.github.io"
+  data-repo-id="R_kgDOMwKw1Q"
+  data-category="Announcements"
+  data-category-id="DIC_kwDOMwKw1c4CiaEV"
+  data-mapping="pathname"
+  data-strict="0"
+  data-reactions-enabled="1"
+  data-emit-metadata="0"
+  data-input-position="bottom"
+  data-theme="preferred_color_scheme"
+  data-lang="zh-CN"
+  crossorigin="anonymous"
+  async
+></script>
+<script>
+  window.onload = function () {
+    console.log("giscus loaded");
+    const isDark = document.documentElement.classList.contains("dark");
+    const giscusFrame = document.querySelector("iframe.giscus-frame");
+    giscusFrame.contentWindow.postMessage(
+      {
+        giscus: {
+          setConfig: {
+            theme: isDark ? "dark" : "light",
+          },
+        },
+      },
+      "https://giscus.app"
+    );
+  };
+</script>
+
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "dark",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>

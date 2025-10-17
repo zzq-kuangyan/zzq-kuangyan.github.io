@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="ZQ">
+
+
+  <meta name="subtitle" content="Talk is cheap.">
+
+
+  <meta name="description" content="blog for my own">
+
+
+
+<title>深度学习-线性回归模型训练步骤 | ZQ&#39;s blog</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+
+    $("#toggle-dark").click((event) => {
+      const isAppearanceTransition = document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (!isAppearanceTransition) {
+        toggleDark()
+        return
+      }
+      const x = event.clientX
+      const y = event.clientY
+      const endRadius = Math.hypot(
+        Math.max(x, innerWidth - x),
+        Math.max(y, innerHeight - y),
+      )
+      const transition = document.startViewTransition(async () => {
+        toggleDark()
+      })
+
+      transition.ready
+        .then(() => {
+          const isDark = document.documentElement.classList.contains("dark")
+          const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ]
+          document.documentElement.animate(
+            {
+              clipPath: isDark
+                ? [...clipPath].reverse()
+                : clipPath,
+            },
+            {
+              duration: 400,
+              easing: 'ease-out',
+              pseudoElement: isDark
+                ? '::view-transition-old(root)'
+                : '::view-transition-new(root)',
+            },
+          )
+        })
+    });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="ZQ's blog" />
+          ZQ&#39;s blog
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        深度学习-线性回归模型训练步骤
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+          <a class="hidden sm:flex" href="/category">Categories</a>
+        
+          <a class="hidden sm:flex" href="/tag">Tags</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/zzq-kuangyan">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/category" class="flex h-12 sm:h-auto items-center">Categories</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/tag" class="flex h-12 sm:h-auto items-center">Tags</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        深度学习-线性回归模型训练步骤
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2025-10-16</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>3 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>782 words</span>
+          </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/DeepLearning/">DeepLearning</a>
+            </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h2 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h2><p>训练核心步骤如下：</p>
+<p><img src="/../../img/image-20251015144217715.png" alt="深度学习模型训练核心步骤"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导包</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> make_regression</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> TensorDataset</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> optim</span><br><span class="line"><span class="keyword">import</span> matplotlib</span><br><span class="line"></span><br><span class="line">matplotlib.use(<span class="string">&#x27;TkAgg&#x27;</span>)</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="comment"># 在文件开头添加，忽略此警告</span></span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line"></span><br><span class="line">warnings.filterwarnings(<span class="string">&quot;ignore&quot;</span>, message=<span class="string">&quot;.*__array_wrap__ must accept context.*&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决中文乱码问题</span></span><br><span class="line">plt.rcParams[<span class="string">&#x27;font.sans-serif&#x27;</span>] = [<span class="string">&#x27;KaiTi&#x27;</span>]</span><br><span class="line">plt.rcParams[<span class="string">&#x27;axes.unicode_minus&#x27;</span>] = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_data</span>(<span class="params">bias</span>):</span><br><span class="line">    <span class="comment"># 1.1 制作数据</span></span><br><span class="line">    x, y, coef = make_regression(n_samples=<span class="number">100</span>, n_features=<span class="number">1</span>, n_targets=<span class="number">1</span>, noise=<span class="number">10</span>, coef=<span class="literal">True</span>, bias=bias,</span><br><span class="line">                                 random_state=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 1.2 转换为张量</span></span><br><span class="line">    x = torch.tensor(x, dtype=torch.<span class="built_in">float</span>)</span><br><span class="line">    y = torch.tensor(y, dtype=torch.<span class="built_in">float</span>)</span><br><span class="line">    <span class="built_in">print</span>(x.shape, y.shape)</span><br><span class="line">    <span class="comment"># 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> x, y, coef</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_train</span>(<span class="params">x, y, epochs, batch_size, lr</span>):</span><br><span class="line">    <span class="comment"># TODO 1.准备数据</span></span><br><span class="line">    <span class="comment"># 1.3 创建数据集</span></span><br><span class="line">    dataset = TensorDataset(x, y)</span><br><span class="line">    <span class="comment"># 1.4 创建数据加载器</span></span><br><span class="line">    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=<span class="literal">True</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(dataset))</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(dataloader))  <span class="comment"># 32 32 32 4</span></span><br><span class="line">    <span class="comment"># TODO 2.准备模型</span></span><br><span class="line">    model = nn.Linear(in_features=<span class="number">1</span>, out_features=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># TODO 3.准备损失函数</span></span><br><span class="line">    loss_fn = nn.MSELoss()</span><br><span class="line">    <span class="comment"># TODO 4.准备优化器</span></span><br><span class="line">    optimizer = optim.SGD(model.parameters(), lr=lr)</span><br><span class="line">    <span class="comment"># TODO 5.训练模型</span></span><br><span class="line">    <span class="comment"># 设置轮次</span></span><br><span class="line">    epochs = epochs</span><br><span class="line">    <span class="comment"># todo 获取总损失,总批次,计算截止到当前轮损失并添加损失列表中,方便后续绘制图表</span></span><br><span class="line">    total_loss, batch_cnt, loss_list = <span class="number">0.0</span>, <span class="number">0</span>, []</span><br><span class="line">    <span class="comment"># todo 遍历轮次</span></span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(epochs):</span><br><span class="line">        <span class="comment"># todo 遍历批次数据</span></span><br><span class="line">        <span class="keyword">for</span> batch_x, batch_y <span class="keyword">in</span> dataloader:</span><br><span class="line">            <span class="comment"># todo 前向传播</span></span><br><span class="line">            <span class="comment"># 计算预测数据</span></span><br><span class="line">            y_pred = model(batch_x)</span><br><span class="line">            <span class="comment"># 计算损失</span></span><br><span class="line">            loss = loss_fn(y_pred, batch_y.reshape(-<span class="number">1</span>, <span class="number">1</span>))  <span class="comment"># 此处需将batch_y转换为[32,1],否则会产生形状不一致的广播问题,影响误差计算</span></span><br><span class="line">            <span class="comment"># todo 累计损失和批次数</span></span><br><span class="line">            total_loss += loss.item()</span><br><span class="line">            batch_cnt += <span class="number">1</span></span><br><span class="line">            <span class="comment"># todo 反向传播</span></span><br><span class="line">            <span class="comment"># 梯度清零</span></span><br><span class="line">            optimizer.zero_grad()</span><br><span class="line">            <span class="comment"># 计算梯度</span></span><br><span class="line">            loss.backward()  <span class="comment"># 此处底层自动求导数,把求出的导数赋值给w.grad属性</span></span><br><span class="line">            <span class="comment"># 参数更新</span></span><br><span class="line">            optimizer.step()  <span class="comment"># 此处底层还是 w旧-学习率*梯度</span></span><br><span class="line">        <span class="comment"># todo 计算截止到当前轮损失,打印日志并添加损失列表中,方便后续绘制图表</span></span><br><span class="line">        epoch_loss = total_loss / batch_cnt</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;截止到第<span class="subst">&#123;epoch + <span class="number">1</span>&#125;</span>轮,最新损失为:<span class="subst">&#123;epoch_loss&#125;</span>&quot;</span>)</span><br><span class="line">        loss_list.append(epoch_loss)</span><br><span class="line">    <span class="comment"># todo 代码走到此处,说明训练完成,模型可以保存</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;训练完成,整体参数为:<span class="subst">&#123;model.state_dict()&#125;</span>,权重为:<span class="subst">&#123;model.weight&#125;</span>,偏置为:<span class="subst">&#123;model.bias&#125;</span>&quot;</span>)</span><br><span class="line">    torch.save(model.state_dict(), <span class="string">&quot;model.pth&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;模型保存成功&quot;</span>)</span><br><span class="line">    <span class="comment"># 返回损失列表</span></span><br><span class="line">    <span class="keyword">return</span> loss_list, model</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show_model_loss</span>(<span class="params">epochs, loss_list, x, y, coef, model</span>):</span><br><span class="line">    <span class="comment"># todo 绘制每轮对应的损失折线图</span></span><br><span class="line">    plt.plot(<span class="built_in">range</span>(epochs), loss_list)</span><br><span class="line">    plt.title(<span class="string">&quot;模型训练效果对比&quot;</span>)</span><br><span class="line">    plt.xlabel(<span class="string">&quot;轮次&quot;</span>)</span><br><span class="line">    plt.ylabel(<span class="string">&quot;损失值&quot;</span>)</span><br><span class="line">    plt.show()</span><br><span class="line">    <span class="comment"># todo 绘制数据本身散点图</span></span><br><span class="line">    plt.scatter(x, y)</span><br><span class="line">    <span class="comment"># todo 绘制模型预测结果和真实结果对比的图表</span></span><br><span class="line">    x = torch.linspace(x.<span class="built_in">min</span>(), x.<span class="built_in">max</span>(), <span class="number">1000</span>)</span><br><span class="line">    y_true = torch.tensor([v * coef + bias <span class="keyword">for</span> v <span class="keyword">in</span> x]) <span class="comment"># 计算真实值</span></span><br><span class="line">    y_pred = torch.tensor([v * model.weight + model.bias <span class="keyword">for</span> v <span class="keyword">in</span> x]) <span class="comment"># 计算预测值</span></span><br><span class="line">    plt.plot(x, y_true, label=<span class="string">&quot;真实&quot;</span>, color=<span class="string">&quot;red&quot;</span>)</span><br><span class="line">    plt.plot(x, y_pred, label=<span class="string">&quot;预测&quot;</span>, color=<span class="string">&quot;green&quot;</span>)</span><br><span class="line">    plt.legend()</span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 处理数据</span></span><br><span class="line">    bias = <span class="number">14.5</span></span><br><span class="line">    x, y, coef = get_data(bias)</span><br><span class="line">    <span class="comment"># 模型训练</span></span><br><span class="line">    epochs = <span class="number">100</span></span><br><span class="line">    loss_list, model = model_train(x, y, epochs=epochs, batch_size=<span class="number">32</span>, lr=<span class="number">0.01</span>)</span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    show_model_loss(epochs, loss_list, x, y, coef, model)</span><br></pre></td></tr></table></figure>
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+    </div>
+    <div>
+      
+        <a href="/2025/10/15/DeepLearning/DeepLearningDay3_2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          人工神经网络-sigmoid函数
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+<script
+  src="https://giscus.app/client.js"
+  data-repo="zzq-kuangyan/zzq-kuangyan.github.io"
+  data-repo-id="R_kgDOMwKw1Q"
+  data-category="Announcements"
+  data-category-id="DIC_kwDOMwKw1c4CiaEV"
+  data-mapping="pathname"
+  data-strict="0"
+  data-reactions-enabled="1"
+  data-emit-metadata="0"
+  data-input-position="bottom"
+  data-theme="preferred_color_scheme"
+  data-lang="zh-CN"
+  crossorigin="anonymous"
+  async
+></script>
+<script>
+  window.onload = function () {
+    console.log("giscus loaded");
+    const isDark = document.documentElement.classList.contains("dark");
+    const giscusFrame = document.querySelector("iframe.giscus-frame");
+    giscusFrame.contentWindow.postMessage(
+      {
+        giscus: {
+          setConfig: {
+            theme: isDark ? "dark" : "light",
+          },
+        },
+      },
+      "https://giscus.app"
+    );
+  };
+</script>
+
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "dark",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>
