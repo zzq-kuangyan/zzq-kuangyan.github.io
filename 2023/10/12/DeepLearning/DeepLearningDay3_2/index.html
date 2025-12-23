@@ -19,7 +19,7 @@
 
 
 
-<title>深度学习-线性回归模型训练步骤 | ZQ&#39;s blog</title>
+<title>人工神经网络-四大激活函数 | ZQ&#39;s blog</title>
 
 
 
@@ -196,7 +196,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        深度学习-线性回归模型训练步骤
+        人工神经网络-四大激活函数
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -272,23 +272,23 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        深度学习-线性回归模型训练步骤
+        人工神经网络-四大激活函数
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2025-10-16</time>
+            <time>2023-12-28</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>3 min</span>
+            <span>4 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>782 words</span>
+            <span>1.1k words</span>
           </span>
           
             <span class="text-gray-400">·</span>
@@ -303,9 +303,83 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h2 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h2><p>训练核心步骤如下：</p>
-<p><img src="/../../img/image-20251015144217715.png" alt="深度学习模型训练核心步骤"></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导包</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> make_regression</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> TensorDataset</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> optim</span><br><span class="line"><span class="keyword">import</span> matplotlib</span><br><span class="line"></span><br><span class="line">matplotlib.use(<span class="string">&#x27;TkAgg&#x27;</span>)</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="comment"># 在文件开头添加，忽略此警告</span></span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line"></span><br><span class="line">warnings.filterwarnings(<span class="string">&quot;ignore&quot;</span>, message=<span class="string">&quot;.*__array_wrap__ must accept context.*&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决中文乱码问题</span></span><br><span class="line">plt.rcParams[<span class="string">&#x27;font.sans-serif&#x27;</span>] = [<span class="string">&#x27;KaiTi&#x27;</span>]</span><br><span class="line">plt.rcParams[<span class="string">&#x27;axes.unicode_minus&#x27;</span>] = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_data</span>(<span class="params">bias</span>):</span><br><span class="line">    <span class="comment"># 1.1 制作数据</span></span><br><span class="line">    x, y, coef = make_regression(n_samples=<span class="number">100</span>, n_features=<span class="number">1</span>, n_targets=<span class="number">1</span>, noise=<span class="number">10</span>, coef=<span class="literal">True</span>, bias=bias,</span><br><span class="line">                                 random_state=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 1.2 转换为张量</span></span><br><span class="line">    x = torch.tensor(x, dtype=torch.<span class="built_in">float</span>)</span><br><span class="line">    y = torch.tensor(y, dtype=torch.<span class="built_in">float</span>)</span><br><span class="line">    <span class="built_in">print</span>(x.shape, y.shape)</span><br><span class="line">    <span class="comment"># 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> x, y, coef</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_train</span>(<span class="params">x, y, epochs, batch_size, lr</span>):</span><br><span class="line">    <span class="comment"># TODO 1.准备数据</span></span><br><span class="line">    <span class="comment"># 1.3 创建数据集</span></span><br><span class="line">    dataset = TensorDataset(x, y)</span><br><span class="line">    <span class="comment"># 1.4 创建数据加载器</span></span><br><span class="line">    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=<span class="literal">True</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(dataset))</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(dataloader))  <span class="comment"># 32 32 32 4</span></span><br><span class="line">    <span class="comment"># TODO 2.准备模型</span></span><br><span class="line">    model = nn.Linear(in_features=<span class="number">1</span>, out_features=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># TODO 3.准备损失函数</span></span><br><span class="line">    loss_fn = nn.MSELoss()</span><br><span class="line">    <span class="comment"># TODO 4.准备优化器</span></span><br><span class="line">    optimizer = optim.SGD(model.parameters(), lr=lr)</span><br><span class="line">    <span class="comment"># TODO 5.训练模型</span></span><br><span class="line">    <span class="comment"># 设置轮次</span></span><br><span class="line">    epochs = epochs</span><br><span class="line">    <span class="comment"># todo 获取总损失,总批次,计算截止到当前轮损失并添加损失列表中,方便后续绘制图表</span></span><br><span class="line">    total_loss, batch_cnt, loss_list = <span class="number">0.0</span>, <span class="number">0</span>, []</span><br><span class="line">    <span class="comment"># todo 遍历轮次</span></span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(epochs):</span><br><span class="line">        <span class="comment"># todo 遍历批次数据</span></span><br><span class="line">        <span class="keyword">for</span> batch_x, batch_y <span class="keyword">in</span> dataloader:</span><br><span class="line">            <span class="comment"># todo 前向传播</span></span><br><span class="line">            <span class="comment"># 计算预测数据</span></span><br><span class="line">            y_pred = model(batch_x)</span><br><span class="line">            <span class="comment"># 计算损失</span></span><br><span class="line">            loss = loss_fn(y_pred, batch_y.reshape(-<span class="number">1</span>, <span class="number">1</span>))  <span class="comment"># 此处需将batch_y转换为[32,1],否则会产生形状不一致的广播问题,影响误差计算</span></span><br><span class="line">            <span class="comment"># todo 累计损失和批次数</span></span><br><span class="line">            total_loss += loss.item()</span><br><span class="line">            batch_cnt += <span class="number">1</span></span><br><span class="line">            <span class="comment"># todo 反向传播</span></span><br><span class="line">            <span class="comment"># 梯度清零</span></span><br><span class="line">            optimizer.zero_grad()</span><br><span class="line">            <span class="comment"># 计算梯度</span></span><br><span class="line">            loss.backward()  <span class="comment"># 此处底层自动求导数,把求出的导数赋值给w.grad属性</span></span><br><span class="line">            <span class="comment"># 参数更新</span></span><br><span class="line">            optimizer.step()  <span class="comment"># 此处底层还是 w旧-学习率*梯度</span></span><br><span class="line">        <span class="comment"># todo 计算截止到当前轮损失,打印日志并添加损失列表中,方便后续绘制图表</span></span><br><span class="line">        epoch_loss = total_loss / batch_cnt</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;截止到第<span class="subst">&#123;epoch + <span class="number">1</span>&#125;</span>轮,最新损失为:<span class="subst">&#123;epoch_loss&#125;</span>&quot;</span>)</span><br><span class="line">        loss_list.append(epoch_loss)</span><br><span class="line">    <span class="comment"># todo 代码走到此处,说明训练完成,模型可以保存</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;训练完成,整体参数为:<span class="subst">&#123;model.state_dict()&#125;</span>,权重为:<span class="subst">&#123;model.weight&#125;</span>,偏置为:<span class="subst">&#123;model.bias&#125;</span>&quot;</span>)</span><br><span class="line">    torch.save(model.state_dict(), <span class="string">&quot;model.pth&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;模型保存成功&quot;</span>)</span><br><span class="line">    <span class="comment"># 返回损失列表</span></span><br><span class="line">    <span class="keyword">return</span> loss_list, model</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show_model_loss</span>(<span class="params">epochs, loss_list, x, y, coef, model</span>):</span><br><span class="line">    <span class="comment"># todo 绘制每轮对应的损失折线图</span></span><br><span class="line">    plt.plot(<span class="built_in">range</span>(epochs), loss_list)</span><br><span class="line">    plt.title(<span class="string">&quot;模型训练效果对比&quot;</span>)</span><br><span class="line">    plt.xlabel(<span class="string">&quot;轮次&quot;</span>)</span><br><span class="line">    plt.ylabel(<span class="string">&quot;损失值&quot;</span>)</span><br><span class="line">    plt.show()</span><br><span class="line">    <span class="comment"># todo 绘制数据本身散点图</span></span><br><span class="line">    plt.scatter(x, y)</span><br><span class="line">    <span class="comment"># todo 绘制模型预测结果和真实结果对比的图表</span></span><br><span class="line">    x = torch.linspace(x.<span class="built_in">min</span>(), x.<span class="built_in">max</span>(), <span class="number">1000</span>)</span><br><span class="line">    y_true = torch.tensor([v * coef + bias <span class="keyword">for</span> v <span class="keyword">in</span> x]) <span class="comment"># 计算真实值</span></span><br><span class="line">    y_pred = torch.tensor([v * model.weight + model.bias <span class="keyword">for</span> v <span class="keyword">in</span> x]) <span class="comment"># 计算预测值</span></span><br><span class="line">    plt.plot(x, y_true, label=<span class="string">&quot;真实&quot;</span>, color=<span class="string">&quot;red&quot;</span>)</span><br><span class="line">    plt.plot(x, y_pred, label=<span class="string">&quot;预测&quot;</span>, color=<span class="string">&quot;green&quot;</span>)</span><br><span class="line">    plt.legend()</span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 处理数据</span></span><br><span class="line">    bias = <span class="number">14.5</span></span><br><span class="line">    x, y, coef = get_data(bias)</span><br><span class="line">    <span class="comment"># 模型训练</span></span><br><span class="line">    epochs = <span class="number">100</span></span><br><span class="line">    loss_list, model = model_train(x, y, epochs=epochs, batch_size=<span class="number">32</span>, lr=<span class="number">0.01</span>)</span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    show_model_loss(epochs, loss_list, x, y, coef, model)</span><br></pre></td></tr></table></figure>
+    <h2 id="人工神经网络"><a href="#人工神经网络" class="headerlink" title="人工神经网络"></a>人工神经网络</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><strong>人工神经网络</strong>是模仿人脑神经元结构的一种计算框架或模型，工作流程分为<strong>两个主要步骤</strong>：</p>
+<ul>
+<li><p>1.加权求和（线性部分）：</p>
+<ul>
+<li>神经元接收来自上一层的所有输入 x1,x2,…。</li>
+<li>每个输入都乘上一个相应的<strong>权重</strong> w1,w2,…（表示输入的重要性）。</li>
+<li>将所有加权输入求和，并加上一个<strong>偏置</strong> b：</li>
+<li>z&#x3D;x1w1+x2w2+⋯+xnwn+b&#x3D;xw+b</li>
+</ul>
+</li>
+<li><p>2.激活（非线性部分）：</p>
+<ul>
+<li><p>将加权和 z 输入到<strong>激活函数</strong> f(⋅) 中。</p>
+</li>
+<li><p>激活函数引入了<strong>非线性</strong>，使得网络模型可以逼近任意函数，提升网络对复杂问题的拟合能力，决定了神经元最终的输出 a，并将信号传递给下一层：</p>
+</li>
+<li><p>a&#x3D;f(z)&#x3D;f(xw+b)</p>
+</li>
+<li><p>四大激活函数：</p>
+<ul>
+<li>sigmoid：将任意的输入映射到0和1之间，当输入的值大致在 <strong>&lt;-6** **或者** **&gt;6</strong> 时，意味着输入任何值得到的激活值都是差不多的，这样会丢失部分的信息。比如：输入 100 和输出 10000 经过 sigmoid 的激活值几乎都是等于 1 的，但是输入的数据之间相差 100 倍的信息就丢失了。</li>
+<li>对于 sigmoid 函数而言，输入值在 <strong>[-6, 6]</strong> 之间输出值才会<strong>有明显差异</strong>，输入值在 <strong>[-3, 3]</strong> 之间才会<strong>有比较好的效果</strong></li>
+<li>通过导数图像，我们发现<strong>导数数值范围是</strong> <strong>(0, 0.25)<strong>，当输入 &lt;-6 或者 &gt;6 时，sigmoid 激活函数图像的</strong>导数接近为</strong> <strong>0</strong>，此时<strong>网络参数将更新极其缓慢，或者无法更新。</strong></li>
+<li>一般来说， sigmoid 网络在 <strong>5</strong> <strong>层之内</strong>就会产生<strong>梯度消失</strong>现象。而且，该激活函数并不是以 0 为中心的，所以在实践中这种激活函数使用的很少。<strong>sigmoid函数一般只用于二分类的输出层</strong>。</li>
+</ul>
+<p><img src="/../../img/image-20251016210747455.png" alt="sigmoid函数图像/导数图像"></p>
+<ul>
+<li><p>relu</p>
+<ul>
+<li><p>函数区间在[0，+∞)  ,导数区间在{-1,1}, relu忽略负数将小于0的值映射为0，而大于 0 的值则保持不变，这样使得函数计算简便，提高了模型训练的效率</p>
+</li>
+<li><p>•当x&lt;0时，ReLU导数为0，而当x&gt;0时，则不存在饱和问题。所以，ReLU 能够在x&gt;0时保持梯度不衰减，从而缓解梯度消失问题。然而，随着训练的推进，部分输入会落入小于0区域，导致对应权重无法更新。这种现象被称为“神经元死亡”。</p>
+</li>
+<li><p>•ReLU是目前最常用的激活函数。与sigmoid相比，RELU的优势是：</p>
+<p>采用sigmoid函数，计算量大（指数运算），反向传播求误差梯度时，计算量相对大，而采用Relu激活函数，整个过程的计算量节省很多。 sigmoid函数反向传播时，很容易就会出现梯度消失的情况，从而无法完成深层网络的训练。 Relu会使一部分神经元的输出为0，这样就造成了网络的稀疏性，并且减少了参数的相互依存关系，缓解了过拟合问题的发生。</p>
+</li>
+<li><p>一般用于隐藏层</p>
+</li>
+</ul>
+<p><img src="/../../img/image-20251017163322971.png" alt="ReLu函数图像/导数图像"></p>
+</li>
+<li><p>tanh</p>
+<ul>
+<li>tanh的函数在(-1，1)之间,图像以0为中心，</li>
+</ul>
+</li>
+<li><p>SoftMax</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>神经网络结构</strong>：</p>
+<p><img src="/../../img/image-20251015234446051.png" alt="神经网络结构"></p>
+<ul>
+<li>输入层：接受原始数据</li>
+<li>隐藏层：预测数据计算损失函数</li>
+<li>输出层：输出预测值，根据损失值再更新参数（权重（w），偏置（b））</li>
+</ul>
+<p>权重和偏置可以通过优化算法（如SGD）不断调整以达到预测结果与真实值之间损失值的最小化</p>
+<p><strong>前向传播：</strong></p>
+<p>从输入层开始传输数据到隐藏层中每个神经元加权求和，并通过激活函数产生输出，最后传到输出层产生一个预测值y</p>
+<p><strong>计算损失</strong>：</p>
+<p>将预测和真实标签比较，通过损失函数计算差值，得到损失值</p>
+<p><strong>反向传播&amp;优化：</strong></p>
+<p>通过<strong>反向传播算法</strong>，计算损失值 J 对网络中每一个权重和偏置的<strong>梯度</strong>（即损失值相对于参数的变化率）。</p>
+<p><strong>梯度</strong>指明了调整参数以减少损失值的方向。</p>
+<p>步骤：</p>
+<ul>
+<li>1.梯度清零</li>
+<li>2.基于损失值计算梯度值</li>
+<li>3.更新参数</li>
+</ul>
+<p><strong>流程总结</strong></p>
+<p>通过不断重复这个“前向传播 → 计算损失 → 反向传播 → 调整参数”的循环，神经网络的模型能力就得到了提升。</p>
+
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
@@ -315,11 +389,16 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
+        <a href="/2024/09/12/1%E7%8E%AF/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          程序 内存 进程 线程 浏览器和JavaScript和事件循环
+        </a>
+      
     </div>
     <div>
       
-        <a href="/2024/10/06/hack/%E6%96%B0%E5%BB%BA%20%E6%96%87%E6%9C%AC/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          下载Apple Music歌曲|解密ALAC
+        <a href="/2023/10/11/DeepLearning/DeepLearningDay3_1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          深度学习-线性回归模型训练步骤
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       
